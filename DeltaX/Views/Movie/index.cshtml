@@ -1,0 +1,473 @@
+﻿@model DeltaX.Models.clsMovie
+@using System.Web.Mvc;
+@using System.Web;
+@using System.Web.Configuration;
+@using System.Web.Optimization;
+@using DeltaX.Models;
+
+@{
+    int i = 1;
+    Layout = null;
+}
+@helper IncrementRow(int k)
+{
+    <text>@k</text>
+}
+
+    <!DOCTYPE html>
+
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>index</title>
+
+        <link href="/Css/jquery-ui.css" rel="stylesheet" />
+        <link href="/Css/sumoselect.css" rel="stylesheet" />
+
+        <script src="/Scripts/jquery.min.js"></script>
+        <script src="/Scripts/jquery-1.12.4.js"></script>
+        <script src="/Scripts/jquery-ui.js"></script>
+
+        <script src="/Scripts/jquery.sumoselect.js"></script>
+
+        <script type="text/javascript">
+
+            //CHECK FORM FOR MOVIE ADD
+            function checkForm() {
+
+                if (document.getElementById("CollectionclsMovie_strMovieName").value.search(/\S/) == -1) {
+
+                    alert('Please enter movie name ');
+                    document.getElementById('CollectionclsMovie_strMovieName').focus();
+
+                    return false;
+                }
+                if (document.getElementById("CollectionclsMovie_ProducerId").value.search(/\S/) == -1) {
+
+                    alert('Please select producer');
+                    document.getElementById('CollectionclsMovie_ProducerId').focus();
+
+                    return false;
+                }
+                if (document.getElementById("CollectionActor_strActorId").value.search(/\S/) == -1) {
+
+                    alert('Please select actor');
+                    document.getElementById('CollectionActor_strActorId').focus();
+
+                    return false;
+                }
+                if (document.getElementById("CollectionclsMovie_strReleaseDate").value.search(/\S/) == -1) {
+
+                    alert('Please select movie release date ');
+                    document.getElementById('CollectionclsMovie_strReleaseDate').focus();
+
+                    return false;
+                }
+                if (document.getElementById("CollectionclsMovie_strMoviePlot").value.search(/\S/) == -1) {
+
+                    alert('Please enter movie plot ');
+                    document.getElementById('CollectionclsMovie_strMoviePlot').focus();
+
+                    return false;
+                }
+                if (document.getElementById("CollectionclsMovie_strMoviePoster").value.search(/\S/) == -1) {
+                    if (document.getElementById("Photo").value.search(/\S/) == -1) {
+
+                        alert('Please upload a movie poster');
+                        document.getElementById('Photo').focus();
+
+                        return false;
+                    }
+                }
+            }
+
+            //AJAX CALL TO ADD PRODUCER
+            function AddProducer() {
+                if(CheckProducer())
+                {
+                    var procemessage = "<option value=''> Please wait...</option>";
+                    $("#CollectionclsMovie_ProducerId").html(procemessage).show();
+                    var url = "/Movie/AddProducer/";
+
+                    $.ajax({
+                        url: url,
+                        data: { ProducerName: $("#CollectionclsProducer_strProducerName").val(), Sex: $("#CollectionclsProducer_strSex").val(), DOB: $("#CollectionclsProducer_strDOBView").val(), Bio: $("#CollectionclsProducer_strBio").val() },
+                        cache: false,
+                        type: "POST",
+                        success: function (data) {
+                            var markup = "<option value=''>select</option>";                           
+                            for (var x = 0; x < data.lstProducer.length; x++) {
+                                markup += "<option value=" + data.lstProducer[x].ProducerId + ">" + data.lstProducer[x].strProducerName + "</option>";
+                            }
+                            $("#CollectionclsMovie_ProducerId").html(markup).show();
+                            $("#CollectionclsProducer_strProducerName").val("");
+                            $("#CollectionclsProducer_strDOBView").val("");
+                            $("#CollectionclsProducer_strBio").val("");
+                            $("#dvAddProducer").toggle();
+                       
+                        },
+                        error: function (reponse) {
+                            alert("error : " + reponse);
+                        }
+                    });
+                }
+            }
+
+            //CHECK FORM FOR ADD PRODUCER
+            function CheckProducer() {
+                var retVal = true;
+                if (document.getElementById("CollectionclsProducer_strProducerName").value.search(/\S/) == -1) {
+
+                    alert('Please enter producer name ');
+                    document.getElementById('CollectionclsProducer_strProducerName').focus();
+
+                    retVal = false;
+                }
+                else if (document.getElementById("CollectionclsProducer_strSex").value.search(/\S/) == -1) {
+
+                    alert('Please select sex');
+                    document.getElementById('CollectionclsProducer_strSex').focus();
+
+                    retVal = false;
+                }
+                else if (document.getElementById("CollectionclsProducer_strDOBView").value.search(/\S/) == -1) {
+
+                    alert('Please select DOB');
+                    document.getElementById('CollectionclsProducer_strDOBView').focus();
+
+                    retVal = false;
+                }
+                else if (document.getElementById("CollectionclsProducer_strBio").value.search(/\S/) == -1) {
+
+                    alert('Please enter Bio');
+                    document.getElementById('CollectionclsProducer_strBio').focus();
+
+                    retVal = false;
+                }
+
+                return retVal;
+            }
+
+            //AJAX CALL TO ADD ACTOR
+            function AddActor() {
+                if (CheckActor()) {
+                    var procemessage = "<option value=''> Please wait...</option>";
+                    $("#CollectionclsMovie_strActorId").html(procemessage).show();
+                    var url = "/Movie/AddActor/";
+
+                    $.ajax({
+                        url: url,
+                        data: { ActorName: $("#CollectionActor_strActorName").val(), Sex: $("#CollectionActor_strSex").val(), DOB: $("#CollectionActor_strDOBView").val(), Bio: $("#CollectionActor_strBio").val() },
+                        cache: false,
+                        type: "POST",
+                        success: function (data) {
+                            var markup = "";                           
+                            for (var x = 0; x < data.lstActor.length; x++) {
+                                markup += "<option value=" + data.lstActor[x].ActorId + ">" + data.lstActor[x].strActorName + "</option>";
+                            }
+                            $("#CollectionclsMovie_strActorId").html(markup).show();
+                            $("#CollectionActor_strActorName").val("");
+                            $("#CollectionActor_strDOBView").val("");
+                            $("#CollectionActor_strBio").val("");
+                            $("#dvAddActor").toggle();
+                            $('select.FlatBox')[0].sumo.reload();
+                        },
+                        error: function (reponse) {
+                            alert("error : " + reponse);
+                        }
+                    });
+                   
+                }
+            }           
+
+            //CHECK FORM FOR ADD ACTOR
+            function CheckActor() {
+                var retVal = true;
+                if (document.getElementById("CollectionActor_strActorName").value.search(/\S/) == -1) {
+
+                    alert('Please enter actor name ');
+                    document.getElementById('CollectionActor_strActorName').focus();
+
+                    retVal = false;
+                }
+                else if (document.getElementById("CollectionActor_strSex").value.search(/\S/) == -1) {
+
+                    alert('Please select sex');
+                    document.getElementById('CollectionActor_strSex').focus();
+
+                    retVal = false;
+                }
+                else if (document.getElementById("CollectionActor_strDOBView").value.search(/\S/) == -1) {
+
+                    alert('Please select DOB');
+                    document.getElementById('CollectionActor_strDOBView').focus();
+
+                    retVal = false;
+                }
+                else if (document.getElementById("CollectionActor_strBio").value.search(/\S/) == -1) {
+
+                    alert('Please enter Bio');
+                    document.getElementById('CollectionActor_strBio').focus();
+
+                    retVal = false;
+                }
+
+                return retVal;
+            }
+        </script>
+        <script>
+            $(document).ready(function () {
+                $('.date-picker').datepicker({
+                    dateFormat: "dd/mm/yy",
+                    changeMonth: true,
+                    changeYear: true,
+                    //yearRange: "-0:+20",
+                    //minDate: "0" // minDate: '0' would work too
+                });
+
+                $("#anOpenProducer").click(function(){
+                    $("#dvAddProducer").toggle();
+                });
+
+                $("#anOpenActor").click(function () {
+                    $("#dvAddActor").toggle();
+                });
+            })
+
+            
+        </script>
+        <script>
+
+            $(document).ready(function () {
+
+                window.asd1 = $('.FlatBox').SumoSelect({
+                    okCancelInMulti: true,
+                    csvDispCount: 10,
+                    selectAll: true
+                    //okCancelInMulti: true
+                });
+            });
+
+            $(function () {
+                var array_ActorIds = $('#CollectionActor_strActorId').val().split(",");
+                $.each(array_ActorIds, function (i) {
+                    $('select.FlatBox')[0].sumo.selectItem(array_ActorIds[i]);
+                });
+
+                $('.btnOk').click(function () {
+                    var selected = $(".FlatBox option:selected");                    
+                    var ActorId = "";
+                  
+                    selected.each(function () {
+                        ActorId += $(this).val() + ",";                        
+                    });                    
+                    $('#CollectionActor_strActorId').val(ActorId);                   
+                });
+
+            });
+        </script>
+
+    </head>
+    <body >
+            <div>          
+
+                @using (Html.BeginForm("Index", "Movie", FormMethod.Post, new { enctype = "multipart/form-data", @autocomplete = "off" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.CollectionclsMovie.MovieId)
+                     @Html.HiddenFor(m => m.CollectionclsMovie.strMoviePoster)
+                    
+                    <table cellpadding="0" cellspacing="0" border="1" width="50%" >
+                        <tr><td colspan="3"><i><font color="red">All fields are mandatory</font></i></td></tr>
+                        <tr><td colspan="3" style="text-align:center; text-decoration-color:red;">
+                            <i>
+                                <font color="red">
+                                    @if (TempData["ErrorMsg"] != null)
+                                    {
+                                        @TempData["ErrorMsg"].ToString()
+                                    }
+                                </font>
+                            </i>
+                        </td></tr>
+                        <tr>
+                            <td style="text-align:right" width="30%"><strong>Movie Name </strong></td>
+                            <td style="text-align:center" width="2%">:</td>
+                            <td style="text-align:left" width="50%">@Html.TextBoxFor(model => model.CollectionclsMovie.strMovieName, new { @placeholder = "Movie Name", @maxlength = "100", @autocomplete = "off" })</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right"><strong>Producer</strong></td>
+                            <td style="text-align:center">:</td>
+                            <td style="text-align:left">@Html.DropDownListFor(m => m.CollectionclsMovie.ProducerId, new SelectList(Model.lstProducer, "ProducerId", "strProducerName"), "select")
+                            
+                            <a href="javascript:void(0);" id="anOpenProducer">Add Producer</a>
+                            <div id="dvAddProducer" style="display:none">
+                                <table cellpadding="0" cellspacing="0" border="1" width="100%">
+                                    <tr>
+                                        <td style="text-align:right" width="30%"><strong>Producer Name </strong></td>
+                                        <td style="text-align:center" width="2%">:</td>
+                                        <td style="text-align:left" width="50%">@Html.TextBoxFor(model => model.CollectionclsProducer.strProducerName, new { @placeholder = "Producer Name", @maxlength = "100", @autocomplete = "off" })</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:right"><strong>Sex</strong></td>
+                                        <td style="text-align:center">:</td>
+                                        <td style="text-align:left">@Html.RadioButtonFor(model => model.CollectionclsProducer.strSex, 'M', new { Checked = "checked" })<label for="Male">Male</label>
+                                            @Html.RadioButtonFor(model => model.CollectionclsProducer.strSex, 'F') <label for="Female">Female</label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:right"><strong>DOB</strong></td>
+                                        <td style="text-align:center">:</td>
+                                        <td style="text-align:left">
+                                            @Html.TextBoxFor(model => model.CollectionclsProducer.strDOBView, new { @class = "date-picker", @placeholder = "DOB", @autocomplete = "off", @onkeypress = "return false" })
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:right"><strong>BIO</strong></td>
+                                        <td style="text-align:center">:</td>
+                                        <td style="text-align:left">
+                                            @Html.TextAreaFor(model => model.CollectionclsProducer.strBio, new { @rows = "5", @cols = "15" })
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">&nbsp;</td>
+                                        <td>                                           
+                                            <input type="button" value="Add Producer" name="SubmitButton" style="cursor: pointer;" class="saveBtn transition2" onclick="return AddProducer();" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right"><strong>Actor List</strong></td>
+                            <td style="text-align:center">:</td>
+                            <td style="text-align:left">                               
+                                @Html.HiddenFor(model => model.CollectionActor.strActorId)
+                                @Html.DropDownListFor(model => model.CollectionclsMovie.strActorId, new SelectList(Model.lstActor, "ActorId", "strActorName"), new { @multiple = "multiple", @class = "FlatBox" })
+
+
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:void(0);" id="anOpenActor">Add Actor</a>
+                                <div id="dvAddActor" style="display:none">
+                                    <table cellpadding="0" cellspacing="0" border="1" width="100%">
+                                        <tr>
+                                            <td style="text-align:right" width="30%"><strong>Actor Name </strong></td>
+                                            <td style="text-align:center" width="2%">:</td>
+                                            <td style="text-align:left" width="50%">@Html.TextBoxFor(model => model.CollectionActor.strActorName, new { @placeholder = "Actor Name", @maxlength = "100", @autocomplete = "off" })</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:right"><strong>Sex</strong></td>
+                                            <td style="text-align:center">:</td>
+                                            <td style="text-align:left">
+                                                @Html.RadioButtonFor(model => model.CollectionActor.strSex, 'M', new { Checked = "checked" })<label for="Male">Male</label>
+                                            @Html.RadioButtonFor(model => model.CollectionActor.strSex, 'F') <label for="Female">Female</label>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:right"><strong>DOB</strong></td>
+                                        <td style="text-align:center">:</td>
+                                        <td style="text-align:left">
+                                            @Html.TextBoxFor(model => model.CollectionActor.strDOBView, new { @class = "date-picker", @placeholder = "DOB", @autocomplete = "off", @onkeypress = "return false" })
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:right"><strong>BIO</strong></td>
+                                        <td style="text-align:center">:</td>
+                                        <td style="text-align:left">
+                                            @Html.TextAreaFor(model => model.CollectionActor.strBio, new { @rows = "5", @cols = "15" })
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">&nbsp;</td>
+                                        <td>
+                                            <input type="button" value="Add Actor" name="SubmitButton" style="cursor: pointer;" class="saveBtn transition2" onclick="return AddActor();" />
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right"><strong>Release Date</strong></td>
+                            <td style="text-align:center">:</td>
+                            <td style="text-align:left">@Html.TextBoxFor(model => model.CollectionclsMovie.strReleaseDate, new { @class = "date-picker", @placeholder = "Release Date", @autocomplete = "off", @onkeypress = "return false" })</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right"><strong>Plot</strong></td>
+                            <td style="text-align:center">:</td>
+                            <td style="text-align:left">@Html.TextAreaFor(model => model.CollectionclsMovie.strMoviePlot, new { @rows = "5", @cols = "15" })</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right"><strong>Movie Poster</strong></td>
+                            <td style="text-align:center">:</td>
+                            <td style="text-align:left"><input type="file" id="Photo" name="Photo" class="inputfile" />
+                            <br />
+                                @{
+                                    if (string.IsNullOrEmpty(Convert.ToString(Model.CollectionclsMovie)) == false)
+                                    {
+                                        if (string.IsNullOrEmpty(Convert.ToString(Model.CollectionclsMovie.strMoviePoster)) == false)
+                                        {
+                                            <a href="@Url.Content(System.Web.Configuration.WebConfigurationManager.AppSettings["Movie_Poster_FilePath"] + "/" + Model.CollectionclsMovie.strMoviePoster)" target="_blank">Click Here</a>
+                                        }
+                                    }
+                                }
+
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td colspan="2">&nbsp;</td>                            
+                            <td>
+                            @if (string.IsNullOrEmpty(Convert.ToString(Model.CollectionclsMovie)) == false)
+{<input type="submit" value="Update" name="SubmitButton" style="cursor: pointer;" class="saveBtn transition2" onclick="return checkForm();" />}
+                            else
+                            {<input type="submit" value="Add" name="SubmitButton" style="cursor: pointer;" class="saveBtn transition2" onclick="return checkForm();" />}<input type="button" value="Reset" name="SubmitButton" class="cancelBtn transition2" style="cursor: pointer;" onclick="window.location.href = '@Url.Action("Index", "Movie")';" />
+                            </td>
+                        </tr>
+                   </table>                                        
+                   
+                }
+            </div>
+        <br />
+            <div>
+                
+                @if (Model.lstMovie.Count() > 0)
+                {
+                    <table cellpadding="0" cellspacing="0" border="1" width="80%" >
+                        <thead>
+                            <tr>
+                                <th width="5%">Sl#</th>
+                                <th width="30%">Movie Name</th>
+                                <th width="15%">Release Year</th>
+                                <th width="30%">Producer Name</th>
+                                <th width="20%">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.lstMovie)
+                            {
+
+                                <tr>
+                                    <td style="text-align:center">@item.RowNum</td>
+                                    <td style="text-align:center">@item.strMovieName</td>
+                                    <td style="text-align:center">@item.strReleaseYearView</td>
+                                    <td style="text-align:center">@item.strProducerName</td>
+                                    <td style="text-align:center"><a class="btn_edit" href="/Movie/Edit/@item.MovieId">Edit </a>&nbsp;</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <table cellpadding="0" cellspacing="0" width="80%">
+                        <tr><td>No record available</td></tr>
+                    </table>
+                }
+            </div>
+
+
+            
+        
+    </body>
+    </html>
