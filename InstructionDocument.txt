@@ -1,0 +1,18 @@
+-------------------
+Database Section
+-------------------
+Please execute the DeltaXScript.sql  file in the sql server.
+
+--------------------
+Application Section
+---------------------
+Open the DeltaX.sln in visual studio from the root of the application folder(DeltaX)
+
+
+---------------------------------
+Modification of Web.Config File
+---------------------------------
+Please open web.config file in visual studio
+
+Modify the following tag with DB server name, Database Name & Password
+<add name="StrConn" connectionString="Server=BAGHA;Database=ABS_CMS;UID=sa;PWD=SQL2008;MultipleActiveResultSets=True;"/>
